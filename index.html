@@ -1,228 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Shop hopper bottoms, grain trailers, and bulk haul trailers at Wilson Trailer Sales & Service in Wilson, North Carolina." />
-  <title>Wilson Trailer Sales & Service | Hopper Bottom & Bulk Haul Trailers</title>
-  <style>
-    :root{
-      --blue:#1746a2;
-      --blue-dark:#0f2f71;
-      --steel:#dfe5eb;
-      --text:#17202b;
-      --muted:#667085;
-      --bg:#f4f8ff;
-      --radius:20px;
-      --shadow:0 14px 34px rgba(15,23,42,.08);
-      --max:1240px;
-    }
-    *{box-sizing:border-box}
-    html{scroll-behavior:smooth}
-    body{margin:0;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:linear-gradient(180deg,#eef5ff 0%,#fff 260px)}
-    a{text-decoration:none;color:inherit}
-    img{display:block;max-width:100%}
-    button,input,select{font:inherit}
-    .container{max-width:var(--max);margin:0 auto;padding:0 24px}
-    .site-header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--steel)}
-    .header-inner{min-height:80px;display:flex;align-items:center;justify-content:space-between;gap:18px}
-    .brand{display:flex;flex-direction:column;gap:4px}
-    .brand-main{font-size:28px;font-weight:900;line-height:1;letter-spacing:.04em;color:var(--blue-dark);text-transform:uppercase}
-    .brand-sub{font-size:11px;font-weight:900;color:var(--blue);text-transform:uppercase;letter-spacing:.22em}
-    .nav{display:flex;align-items:center;gap:20px;flex-wrap:wrap;font-size:14px;font-weight:800;color:#334155}
-    .nav a:hover{color:var(--blue-dark)}
-    .header-call{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 18px;border-radius:14px;background:var(--blue-dark);color:#fff;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;white-space:nowrap}
-    .hero{padding:52px 0 28px}
-    .hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:24px;align-items:stretch}
-    .kicker{display:inline-flex;align-items:center;gap:10px;border:1px solid #dbe5f5;background:#fff;color:var(--blue);padding:10px 14px;border-radius:999px;font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase}
-    .kicker-dot{width:8px;height:8px;border-radius:50%;background:var(--blue)}
-    h1{margin:18px 0 16px;font-size:56px;line-height:.94;letter-spacing:-.05em;text-transform:uppercase;color:var(--blue-dark)}
-    h1 span{color:var(--blue)}
-    .hero-copy{max-width:680px;color:var(--muted);font-size:18px;line-height:1.7}
-    .hero-actions{display:flex;gap:12px;flex-wrap:wrap;margin-top:24px}
-    .btn{display:inline-flex;align-items:center;justify-content:center;min-height:52px;padding:0 22px;border-radius:15px;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;border:1px solid transparent}
-    .btn-primary{background:var(--blue);color:#fff;box-shadow:0 8px 18px rgba(23,70,162,.22)}
-    .btn-primary:hover{background:var(--blue-dark)}
-    .btn-secondary{background:#fff;color:var(--blue-dark);border-color:#d7dce5}
-    .hero-note{margin-top:14px;color:#475569;font-size:14px;font-weight:700}
-    .hero-card,.inventory-card,.contact-card{background:#fff;border:1px solid var(--steel);border-radius:var(--radius);box-shadow:var(--shadow)}
-    .hero-card{overflow:hidden;display:flex;flex-direction:column;min-height:100%;background:#11357f;border-color:#0d2760}
-    .hero-carousel{position:relative;aspect-ratio:16/10;background:#edf2f7;overflow:hidden}
-    .hero-slides{height:100%;position:relative}
-    .hero-slide{position:absolute;inset:0;opacity:0;transition:opacity .3s ease;pointer-events:none}
-    .hero-slide.active{opacity:1;pointer-events:auto}
-    .hero-slide img{width:100%;height:100%;object-fit:cover}
-    .hero-slide-overlay{position:absolute;inset:auto 0 0 0;padding:18px;background:linear-gradient(180deg,rgba(10,19,31,0) 0%,rgba(10,19,31,.88) 100%);color:#fff}
-    .hero-slide-title{font-size:30px;font-weight:900;line-height:1;letter-spacing:-.04em;margin-bottom:10px}
-    .hero-slide-price{display:inline-flex;align-items:center;justify-content:center;min-height:38px;padding:0 12px;border-radius:12px;background:rgba(255,255,255,.18);color:#fff;font-size:22px;font-weight:900;letter-spacing:-.03em}
-    .hero-arrow{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border:none;border-radius:50%;background:rgba(15,30,46,.82);color:#fff;cursor:pointer;z-index:2;font-size:22px}
-    .hero-prev{left:12px}.hero-next{right:12px}
-    .hero-card-body{padding:18px}
-    .hero-card-kicker{color:#dbeafe;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.18em;margin-bottom:8px}
-    .hero-card-title{margin:0 0 12px;color:#fff;font-size:28px;line-height:1;font-weight:900;letter-spacing:-.04em;text-transform:uppercase}
-    .hero-card-copy{color:#dbeafe;font-size:15px;line-height:1.65;margin-bottom:16px}
-    .hero-card-actions{display:flex;gap:10px;flex-wrap:wrap}
-    .section{padding:20px 0 36px}
-    .section-head{display:flex;align-items:end;justify-content:space-between;gap:14px;margin-bottom:16px}
-    .section-kicker{color:var(--blue);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.18em;margin-bottom:10px}
-    .section-title{margin:0;color:var(--blue-dark);font-size:36px;line-height:1;font-weight:900;letter-spacing:-.04em;text-transform:uppercase}
-    .section-copy{margin:10px 0 0;color:var(--muted);font-size:16px;line-height:1.65}
-    .controls{display:grid;grid-template-columns:1.4fr .8fr .8fr;gap:12px;margin-bottom:16px}
-    .control{background:#fff;border:1px solid var(--steel);border-radius:16px;padding:12px 14px}
-    .control label{display:block;margin-bottom:6px;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:#64748b}
-    .control input,.control select{width:100%;border:none;outline:none;background:transparent;color:var(--text);font-size:15px}
-    .inventory-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch}
-    .inventory-card{overflow:hidden;display:flex;flex-direction:column;min-height:100%}
-    .inventory-photo{position:relative;aspect-ratio:16/10;background:#edf2f7;overflow:hidden}
-    .inventory-photo img{width:100%;height:100%;object-fit:cover}
-    .badge{position:absolute;top:12px;left:12px;min-height:28px;padding:0 10px;border-radius:999px;display:inline-flex;align-items:center;justify-content:center;background:rgba(15,23,42,.84);color:#fff;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.14em}
-    .inventory-body{padding:16px;display:flex;flex-direction:column;gap:10px;height:100%}
-    .inventory-title{margin:0;font-size:21px;line-height:1.05;letter-spacing:-.04em;color:var(--blue-dark);font-weight:900;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.1em}
-    .price-bar{display:inline-flex;align-self:flex-start;min-height:36px;padding:0 12px;border-radius:12px;background:#e2ecff;color:var(--blue-dark);align-items:center;font-size:18px;font-weight:900;letter-spacing:-.03em}
-    .inventory-specs,.inventory-stock,.inventory-desc{color:var(--muted);font-size:13px;line-height:1.5}
-    .inventory-stock{font-weight:800;color:#334155}
-    .inventory-desc{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:3em}
-    .pill-row{display:flex;gap:6px;flex-wrap:wrap}
-    .pill{display:inline-flex;align-items:center;min-height:26px;padding:0 9px;border-radius:999px;background:#f8fafc;border:1px solid var(--steel);color:#475569;font-size:11px;font-weight:800;white-space:nowrap}
-    .card-actions{margin-top:auto;display:grid;grid-template-columns:1fr 1.25fr 1fr;gap:8px}
-    .card-btn{display:inline-flex;align-items:center;justify-content:center;min-height:42px;padding:0 10px;border-radius:12px;text-align:center;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.07em;border:1px solid transparent;white-space:nowrap}
-    .card-btn-primary{background:var(--blue-dark);color:#fff}
-    .card-btn-secondary{background:#fff;color:var(--blue-dark);border-color:#d7dce5}
-    .card-btn-finance{background:var(--blue);color:#fff}
-    .empty-state{padding:42px 20px;text-align:center;border:1px dashed var(--steel);border-radius:18px;color:var(--muted);background:#fff}
-    .contact-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
-    .contact-card{padding:22px}
-    .contact-label{color:#64748b;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.16em;margin-bottom:10px}
-    .contact-value{color:var(--blue-dark);font-size:22px;font-weight:900;line-height:1.3}
-    .contact-sub{margin-top:8px;color:var(--muted);font-size:14px;line-height:1.6}
-    .contact-btn{margin-top:14px;display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 16px;border-radius:12px;background:var(--blue-dark);color:#fff;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
-    .contact-btn.blue{background:var(--blue)}
-    .site-footer{background:var(--blue-dark);color:#fff;padding:26px 0 30px;margin-top:20px}
-    .footer-inner{display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap}
-    .footer-brand{font-weight:900;text-transform:uppercase;letter-spacing:.14em}
-    .footer-links{display:flex;gap:16px;flex-wrap:wrap;color:#cbd5e1;font-weight:700}
-    .mobile-bar{position:fixed;left:0;right:0;bottom:0;z-index:60;background:#fff;border-top:1px solid var(--steel);display:none;grid-template-columns:1fr 1fr;box-shadow:0 -8px 20px rgba(15,23,42,.08)}
-    .mobile-bar a{min-height:58px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:900;text-transform:uppercase;letter-spacing:.08em}
-    .mobile-bar a:first-child{background:var(--blue-dark);color:#fff}.mobile-bar a:last-child{background:var(--blue);color:#fff}
-    @media (max-width:1180px){.hero-grid,.contact-grid{grid-template-columns:1fr}.inventory-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media (max-width:760px){.container{padding:0 16px}.header-inner{min-height:72px;align-items:flex-start;padding:14px 0}.nav{display:none}.brand-main{font-size:24px}.brand-sub{font-size:10px;letter-spacing:.18em}h1{font-size:38px}.hero-copy{font-size:16px;line-height:1.6}.section-title{font-size:30px}.controls{grid-template-columns:1fr}.inventory-grid{grid-template-columns:1fr}.hero-slide-title{font-size:24px}.hero-card-title{font-size:24px}.card-actions{grid-template-columns:1fr 1fr}.card-actions .card-btn:first-child{grid-column:1 / -1}.mobile-bar{display:grid}body{padding-bottom:58px}.section-head{align-items:start;flex-direction:column}.footer-inner{display:block;text-align:center}.footer-links{justify-content:center;margin-top:12px}}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wilson Trailer Sales & Service</title>
+
+<style>
+body{margin:0;font-family:Arial;background:#0d0d0d;color:#fff}
+header{background:#111;padding:15px 20px;display:flex;align-items:center;gap:15px}
+.logo{height:60px}
+.container{padding:20px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px}
+.card{background:#1a1a1a;padding:15px;border-radius:8px}
+a{color:#fff;text-decoration:none}
+</style>
 </head>
+
 <body>
-<header class="site-header">
-  <div class="container header-inner">
-    <div class="brand">
-      <div class="brand-main">Wilson Trailer Sales &amp; Service</div>
-      <div class="brand-sub">Wilson, North Carolina</div>
-    </div>
-    <nav class="nav">
-      <a href="/">Home</a>
-      <a href="#inventory">Inventory</a>
-      <a href="/finance.html">Finance</a>
-      <a href="#contact">Contact</a>
-    </nav>
-    <a class="header-call" href="tel:2524298805">Call 252-429-8805</a>
-  </div>
+
+<header>
+<img src="/wilson_logo_v1.png" class="logo">
+<div>
+<h2>Wilson Trailer Sales & Service</h2>
+<p>Wilson, NC</p>
+</div>
 </header>
-<section class="hero">
-  <div class="container hero-grid">
-    <div>
-      <div class="kicker"><span class="kicker-dot"></span> Wilson Trailer Sales &amp; Service Inventory</div>
-      <h1>Wilson Hopper Bottoms <span>&amp; Bulk Haul Trailers</span></h1>
-      <div class="hero-copy">Browse hopper bottoms, grain trailers, and bulk haul inventory at Wilson Trailer Sales &amp; Service in Wilson, North Carolina. Open unit details, call for availability, or apply for financing.</div>
-      <div class="hero-actions">
-        <a class="btn btn-primary" href="#inventory">Browse Inventory</a>
-        <a class="btn btn-secondary" href="/finance.html">Apply for Financing</a>
-      </div>
-      <div class="hero-note">Call 252-429-8805 and ask for trailer sales.</div>
-    </div>
-    <div class="hero-card">
-      <div class="hero-carousel">
-        <button class="hero-arrow hero-prev" type="button">‹</button>
-        <div class="hero-slides" id="heroSlides"></div>
-        <button class="hero-arrow hero-next" type="button">›</button>
-      </div>
-      <div class="hero-card-body">
-        <div class="hero-card-kicker">Featured Inventory</div>
-        <h2 class="hero-card-title">Available Now</h2>
-        <div class="hero-card-copy" id="heroCopy">Browse featured hopper bottoms and bulk haul trailers currently available at Wilson Trailer Sales &amp; Service.</div>
-        <div class="hero-card-actions">
-          <a class="btn btn-primary" id="heroPrimaryCta" href="#inventory">View Details</a>
-          <a class="btn btn-secondary" href="tel:2524298805">Call Wilson</a>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-<section class="section" id="inventory">
-  <div class="container">
-    <div class="section-head">
-      <div>
-        <div class="section-kicker">Available Inventory</div>
-        <h2 class="section-title">Browse Inventory</h2>
-        <p class="section-copy">Click View Details for photos, specs, and contact options.</p>
-      </div>
-      <a class="header-call" href="/finance.html" style="background:var(--blue)">Apply for Financing</a>
-    </div>
-    <div class="controls">
-      <div class="control"><label for="searchInput">Search inventory</label><input id="searchInput" type="text" placeholder="Search year, make, model, stock, or trailer type..." /></div>
-      <div class="control"><label for="typeFilter">Type</label><select id="typeFilter"><option value="all">All types</option></select></div>
-      <div class="control"><label for="sortSelect">Sort</label><select id="sortSelect"><option value="featured">Featured first</option><option value="price-desc">Price high to low</option><option value="price-asc">Price low to high</option><option value="year-desc">Year new to old</option><option value="year-asc">Year old to new</option></select></div>
-    </div>
-    <div class="inventory-grid" id="inventoryGrid"></div>
-  </div>
-</section>
-<section class="section" id="contact">
-  <div class="container">
-    <div class="section-head">
-      <div>
-        <div class="section-kicker">Get In Touch</div>
-        <h2 class="section-title">Need Help Finding the Right Trailer?</h2>
-        <p class="section-copy">Call, get directions, or apply for financing to get started.</p>
-      </div>
-    </div>
-    <div class="contact-grid">
-      <div class="contact-card"><div class="contact-label">Contact</div><div class="contact-value"><a href="tel:2524298805">Call 252-429-8805</a></div><div class="contact-sub">Talk with Wilson Trailer Sales &amp; Service about pricing, availability, and current inventory.</div><a class="contact-btn" href="tel:2524298805">Call Now</a></div>
-      <div class="contact-card"><div class="contact-label">Location</div><div class="contact-value"><a href="https://www.google.com/maps/search/?api=1&query=1605+Thorne+Ave+S+Wilson+NC+27893" target="_blank">1605 Thorne Ave S<br />Wilson, NC 27893</a></div><div class="contact-sub">Open Wilson Trailer Sales &amp; Service in Google Maps for directions.</div><a class="contact-btn" href="https://www.google.com/maps/search/?api=1&query=1605+Thorne+Ave+S+Wilson+NC+27893" target="_blank">Get Directions</a></div>
-      <div class="contact-card"><div class="contact-label">Financing</div><div class="contact-value"><a href="/finance.html">Apply for Financing</a></div><div class="contact-sub">Start your financing application online through Wilson Trailer Sales &amp; Service.</div><a class="contact-btn blue" href="/finance.html">Apply Now</a></div>
-    </div>
-  </div>
-</section>
-<footer class="site-footer">
-  <div class="container footer-inner">
-    <div><div class="footer-brand">Wilson Trailer Sales &amp; Service</div><div style="color:#cbd5e1; margin-top:8px;">Wilson, North Carolina</div></div>
-    <div class="footer-links"><a href="#inventory">Inventory</a><a href="/finance.html">Finance</a><a href="#contact">Contact</a><a href="tel:2524298805">252-429-8805</a></div>
-  </div>
-</footer>
-<div class="mobile-bar"><a href="tel:2524298805">Call</a><a href="/finance.html">Finance</a></div>
+
+<div class="container">
+<h1>Inventory</h1>
+<div id="inventory" class="grid"></div>
+</div>
+
 <script>
-const ENDPOINT='/.netlify/functions/inventory';
-const inventoryGrid=document.getElementById('inventoryGrid');
-const searchInput=document.getElementById('searchInput');
-const typeFilter=document.getElementById('typeFilter');
-const sortSelect=document.getElementById('sortSelect');
-const heroSlides=document.getElementById('heroSlides');
-const heroCopy=document.getElementById('heroCopy');
-const heroPrimaryCta=document.getElementById('heroPrimaryCta');
-let allInventory=[],filteredInventory=[],heroItems=[],heroIndex=0,heroTimer=null;
-function escapeHtml(str=''){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;')}
-function formatPrice(value){const num=Number(String(value??'').replace(/[^\d.-]/g,''));if(!Number.isFinite(num)||num<=0)return 'Call for Price';return new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(num)}
-function inferType(unit){const raw=[unit?.type,unit?.category,unit?.body,unit?.bodytype,unit?.vehicleType,unit?.class,unit?.condition,unit?.model,unit?.description].filter(Boolean).join(' ').toLowerCase();if(raw.includes('hopper')||raw.includes('grain'))return 'Hopper Bottom';if(raw.includes('dump'))return 'Dump Trailer';if(raw.includes('flatbed'))return 'Flatbed';if(raw.includes('belt'))return 'Belt Trailer';if(raw.includes('van'))return 'Van Trailer';return 'Trailer'}
-function getPrimaryPhoto(unit){if(Array.isArray(unit?.photos)){const found=unit.photos.find(photo=>photo&&photo.url);if(found)return found.url}return unit?.photo||unit?.image||''}
-function formatTitle(unit){return [unit?.year,unit?.make,unit?.model].filter(Boolean).join(' ').trim()||unit?.title||'Trailer'}
-function getVdpUrl(unit){const stock=unit?.stock||unit?.stockNumber||unit?.stock_number||'';return stock?`/vehicle.html?stock=${encodeURIComponent(stock)}`:'/vehicle.html'}
-function descriptionText(unit){const raw=unit?.description||unit?.comments||unit?.dealerComments||'';const clean=String(raw).replace(/\s+/g,' ').trim();return clean||'Call Wilson Trailer Sales & Service for current details and availability.'}
-function normalizeInventory(items){const seen=new Set();return(Array.isArray(items)?items:[]).map(unit=>({...unit,_type:inferType(unit)})).filter(unit=>{const key=`${unit.stock||unit.stockNumber||''}|${formatTitle(unit)}`;if(seen.has(key))return false;seen.add(key);return true})}
-function renderHero(items){heroItems=items.slice(0,3);heroSlides.innerHTML='';if(!heroItems.length){heroSlides.innerHTML='<div class="hero-slide active"><div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#64748b;font-weight:800;">No inventory currently available</div></div>';heroCopy.textContent='Please check back soon or call Wilson Trailer Sales & Service for current availability.';heroPrimaryCta.href='#inventory';return}heroItems.forEach((unit,index)=>{const photo=getPrimaryPhoto(unit);const slide=document.createElement('a');slide.className=`hero-slide${index===0?' active':''}`;slide.href=getVdpUrl(unit);slide.innerHTML=`${photo?`<img src="${escapeHtml(photo)}" alt="${escapeHtml(formatTitle(unit))}">`:`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;color:#64748b;font-weight:800;">No Photo</div>`}<div class="hero-slide-overlay"><div class="hero-slide-title">${escapeHtml(formatTitle(unit))}</div><div class="hero-slide-price">${escapeHtml(formatPrice(unit.price))}</div></div>`;heroSlides.appendChild(slide)});const top=heroItems[0];heroCopy.textContent=`Featured now: ${formatTitle(top)} at ${formatPrice(top.price)}.`;heroPrimaryCta.href=getVdpUrl(top);heroIndex=0;startHeroTimer()}
-function showHeroSlide(index){const slides=[...heroSlides.querySelectorAll('.hero-slide')];if(!slides.length)return;heroIndex=(index+slides.length)%slides.length;slides.forEach((slide,i)=>slide.classList.toggle('active',i===heroIndex));const unit=heroItems[heroIndex];if(unit){heroCopy.textContent=`Featured now: ${formatTitle(unit)} at ${formatPrice(unit.price)}.`;heroPrimaryCta.href=getVdpUrl(unit)}}
-function startHeroTimer(){stopHeroTimer();if(heroItems.length<=1)return;heroTimer=setInterval(()=>showHeroSlide(heroIndex+1),5000)}
-function stopHeroTimer(){if(heroTimer)clearInterval(heroTimer);heroTimer=null}
-function populateTypeFilter(items){const types=['all',...new Set(items.map(unit=>unit._type).filter(Boolean))];typeFilter.innerHTML=types.map(type=>`<option value="${escapeHtml(type.toLowerCase())}">${type==='all'?'All types':escapeHtml(type)}</option>`).join('')}
-function sortInventory(items){const sorted=[...items];const mode=sortSelect.value;if(mode==='price-desc')sorted.sort((a,b)=>(Number(b.price)||0)-(Number(a.price)||0));else if(mode==='price-asc')sorted.sort((a,b)=>(Number(a.price)||0)-(Number(b.price)||0));else if(mode==='year-desc')sorted.sort((a,b)=>(Number(b.year)||0)-(Number(a.year)||0));else if(mode==='year-asc')sorted.sort((a,b)=>(Number(a.year)||0)-(Number(b.year)||0));else{sorted.sort((a,b)=>{const aFeatured=Number(a.featured||0)?1:0;const bFeatured=Number(b.featured||0)?1:0;if(bFeatured!==aFeatured)return bFeatured-aFeatured;return (Number(b.year)||0)-(Number(a.year)||0)})}return sorted}
-function applyFilters(){const q=searchInput.value.trim().toLowerCase();const type=typeFilter.value;filteredInventory=allInventory.filter(unit=>{const haystack=[formatTitle(unit),unit.stock,unit.stockNumber,unit.vin,unit.fuel,unit._type,unit.description].filter(Boolean).join(' ').toLowerCase();const matchesSearch=!q||haystack.includes(q);const matchesType=type==='all'||unit._type.toLowerCase()===type;return matchesSearch&&matchesType});filteredInventory=sortInventory(filteredInventory);renderInventory(filteredInventory)}
-function renderInventory(items){if(!items.length){inventoryGrid.innerHTML='<div class="empty-state" style="grid-column:1 / -1;">No inventory is currently available. Please check back soon or call Wilson Trailer Sales &amp; Service.</div>';return}inventoryGrid.innerHTML=items.map(unit=>{const photo=getPrimaryPhoto(unit);const title=formatTitle(unit);const vdpUrl=getVdpUrl(unit);const price=formatPrice(unit.price);const stock=unit.stock||unit.stockNumber||'';const specs=[unit._type,unit.condition,unit.year].filter(Boolean).join(' • ');const pills=[unit._type,unit.condition,unit.year,stock?`Stock ${stock}`:''].filter(Boolean).slice(0,4);return `<article class="inventory-card"><a class="inventory-photo" href="${escapeHtml(vdpUrl)}">${unit.featured?'<span class="badge">Featured</span>':''}${photo?`<img src="${escapeHtml(photo)}" alt="${escapeHtml(title)}" loading="lazy">`:''}</a><div class="inventory-body"><a href="${escapeHtml(vdpUrl)}"><h3 class="inventory-title">${escapeHtml(title)}</h3></a><div class="price-bar">${escapeHtml(price)}</div>${specs?`<div class="inventory-specs">${escapeHtml(specs)}</div>`:''}${stock?`<div class="inventory-stock">Stock # ${escapeHtml(stock)}</div>`:''}<div class="pill-row">${pills.map(pill=>`<span class="pill">${escapeHtml(String(pill))}</span>`).join('')}</div><div class="inventory-desc">${escapeHtml(descriptionText(unit))}</div><div class="card-actions"><a class="card-btn card-btn-secondary" href="${escapeHtml(vdpUrl)}">View Details</a><a class="card-btn card-btn-primary" href="tel:2524298805">Call</a><a class="card-btn card-btn-finance" href="/finance.html">Finance</a></div></div></article>`}).join('')}
-async function loadInventory(){try{const res=await fetch(ENDPOINT,{cache:'no-store'});if(!res.ok)throw new Error(`HTTP ${res.status}`);const data=await res.json();allInventory=normalizeInventory(data);populateTypeFilter(allInventory);renderHero(sortInventory(allInventory));applyFilters()}catch(error){renderHero([]);inventoryGrid.innerHTML='<div class="empty-state" style="grid-column:1 / -1;">Inventory is temporarily unavailable online. Please call Wilson Trailer Sales &amp; Service at 252-429-8805.</div>'}}
-searchInput.addEventListener('input',applyFilters);typeFilter.addEventListener('change',applyFilters);sortSelect.addEventListener('change',applyFilters);document.querySelector('.hero-prev').addEventListener('click',()=>{showHeroSlide(heroIndex-1);startHeroTimer()});document.querySelector('.hero-next').addEventListener('click',()=>{showHeroSlide(heroIndex+1);startHeroTimer()});loadInventory();
+fetch('/.netlify/functions/inventory')
+.then(res=>res.json())
+.then(data=>{
+const container=document.getElementById('inventory')
+data.forEach(item=>{
+container.innerHTML+=`
+<a href="/vehicle.html?id=${item.id}">
+<div class="card">
+<h3>${item.title}</h3>
+<p>$${item.price}</p>
+</div>
+</a>`
+})
+})
 </script>
+
 </body>
 </html>
