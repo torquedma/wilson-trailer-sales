@@ -7,3 +7,8 @@
   [headers.values]
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
+
+[[redirects]]
+  from = "/inventory"
+  to = "/#/inventory"
+  status = 302
