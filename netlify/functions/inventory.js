@@ -18,6 +18,7 @@ exports.handler = async (event) => {
     "Access-Control-Allow-Headers": "Content-Type, Authorization",
     "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
     "Content-Type": "application/json",
+    "Cache-Control": "public, max-age=300, s-maxage=600",
   };
   if (event.httpMethod === "OPTIONS") return { statusCode: 204, headers, body: "" };
   const siteId = process.env.NETLIFY_SITE_ID;
