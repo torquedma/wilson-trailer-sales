@@ -8,7 +8,10 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const { _test, handler } = require('../inventory');
-const { createHandler, LKG_BLOB_KEY, LEGACY_BLOB_KEY, LKG_MAX_AGE_MS, FEED_URL } = _test;
+const { createHandler, LKG_BLOB_KEY, LKG_MAX_AGE_MS, FEED_URL } = _test;
+const fs = require('fs');
+const path = require('path');
+const OLD_PUSH_KEY = 'wilsontrailersales-inventory';   // retired push storage key: left in place, inert, never read or written
 
 const T0 = Date.parse('2026-10-08T12:00:00.000Z');
 const HOUR = 60 * 60 * 1000;
@@ -17,13 +20,12 @@ const UNITS = [
   { stock: 'WTS-487', year: 2027, make: 'Wilson', price: '$65,100', sold: true },
 ];
 const OLDER = [{ stock: 'WTS-OLD', year: 2001, make: 'Old', price: '$1', sold: false }];
-// Exactly the header set production (194b014) returns on every path. Legacy POST / OPTIONS / 405 must match it.
-const PRODUCTION_HEADERS = {
+// POST is retired (Chief 2026-10-09): every response advertises only GET and OPTIONS.
+const CORS = {
   'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Access-Control-Allow-Methods': 'GET, OPTIONS',
   'Content-Type': 'application/json',
-  'Cache-Control': 'public, max-age=300, s-maxage=600',
 };
 const EXPOSE = 'X-Inventory-Source, X-Inventory-Fetched-At, X-Inventory-Age-Seconds';
 
@@ -46,11 +48,11 @@ const ok = (units) => ({ status: 200, body: JSON.stringify(units) });
 const lkg = (units, fetchedAtMs) => JSON.stringify({ fetched_at: new Date(fetchedAtMs).toISOString(), units });
 const down = () => { throw new Error('ECONNREFUSED'); };
 
-test('P0: the production handler points at the ADMIN dealer feed for WTS and keeps separate blob keys', () => {
+test('P0: the production handler points at the ADMIN dealer feed for WTS and keeps only the last-known-good blob key (push key gone)', () => {
   assert.equal(FEED_URL, 'https://admin-torquehub.netlify.app/.netlify/functions/dealer-feed?dealer=WTS');
-  assert.equal(LEGACY_BLOB_KEY, 'wilsontrailersales-inventory');
+  assert.equal(_test.LEGACY_BLOB_KEY, undefined, 'the push storage key is no longer part of the function');
   assert.equal(LKG_BLOB_KEY, 'wilsontrailersales-inventory-lkg');
-  assert.notEqual(LKG_BLOB_KEY, LEGACY_BLOB_KEY);
+  assert.notEqual(LKG_BLOB_KEY, OLD_PUSH_KEY);
   assert.equal(LKG_MAX_AGE_MS, 24 * HOUR);
   assert.equal(typeof handler, 'function');
 });
@@ -66,6 +68,7 @@ test('P1: fresh success -> 200 fresh units unchanged, fresh headers, LKG stored 
   assert.equal(r.headers['Content-Type'], 'application/json');
   assert.equal(r.headers['Access-Control-Allow-Origin'], '*');
   assert.equal(r.headers['Access-Control-Expose-Headers'], EXPOSE);
+  assert.equal(r.headers['Access-Control-Allow-Methods'], 'GET, OPTIONS');
   assert.equal(s.writes.length, 1);
   assert.equal(s.writes[0].key, LKG_BLOB_KEY);
   assert.deepEqual(JSON.parse(s.writes[0].body), { fetched_at: new Date(T0).toISOString(), units: UNITS });
@@ -166,7 +169,7 @@ test('P7: a later fresh success replaces the LKG and resets its age', async () =
 });
 
 test('P8: the legacy push blob is never read by GET, even when it is the only copy', async () => {
-  const s = rig({ feed: down, blobs: { [LEGACY_BLOB_KEY]: JSON.stringify(UNITS) } });
+  const s = rig({ feed: down, blobs: { [OLD_PUSH_KEY]: JSON.stringify(UNITS) } });
   const r = await s.get();
   assert.equal(r.statusCode, 503);
   assert.deepEqual(s.reads, [LKG_BLOB_KEY]);
@@ -185,36 +188,38 @@ test('P10: a throwing fallback read fails closed (503), not []', async () => {
   assert.equal(r.statusCode, 503);
 });
 
-test('P11: legacy POST / OPTIONS / 405 unchanged — exact production headers (no expose list), legacy key only', async () => {
+test('P11: POST is retired — every POST (no header, wrong token, former-token-shaped, capitalized) → 405 no-store; nothing read or written; OPTIONS and other methods advertise GET only', async () => {
   const saved = { ...process.env };
-  process.env.NETLIFY_SITE_ID = 'site'; process.env.NETLIFY_BLOBS_TOKEN = 'blob'; process.env.INVENTORY_TOKEN = 'inv';
+  process.env.NETLIFY_SITE_ID = 'site'; process.env.NETLIFY_BLOBS_TOKEN = 'blob';
+  process.env.INVENTORY_TOKEN = 'dummy-former-token';   // dummy value only — the function must no longer read it
   try {
-    const writes = [];
-    let writeFails = false;
-    const h = createHandler({ now: () => T0, fetchFeed: async () => ok(UNITS), readBlob: async () => null,
-      writeBlob: async (key, body, timeoutMs) => { writes.push({ key, body, timeoutMs }); if (writeFails) throw new Error('Blobs API error 500: x'); } });
-    const legacy = [];
-    const bad = await h({ httpMethod: 'POST', headers: { authorization: 'Bearer nope' }, body: '[]' });
-    assert.equal(bad.statusCode, 401); legacy.push(['POST 401', bad]);
-    const good = await h({ httpMethod: 'POST', headers: { Authorization: 'Bearer inv' }, body: JSON.stringify(UNITS) });
-    assert.equal(good.statusCode, 200);
-    assert.deepEqual(JSON.parse(good.body), { success: true, count: 2 }); legacy.push(['POST 200', good]);
-    writeFails = true;
-    const failed = await h({ httpMethod: 'POST', headers: { authorization: 'Bearer inv' }, body: '[]' });
-    assert.equal(failed.statusCode, 500);
-    assert.deepEqual(JSON.parse(failed.body), { error: 'Blobs API error 500: x' }); legacy.push(['POST 500 write', failed]);
-    writeFails = false;
-    const opt = await h({ httpMethod: 'OPTIONS', headers: {} });
-    assert.equal(opt.statusCode, 204); assert.equal(opt.body, ''); legacy.push(['OPTIONS 204', opt]);
-    const del = await h({ httpMethod: 'DELETE', headers: {} });
-    assert.equal(del.statusCode, 405); legacy.push(['DELETE 405', del]);
-    delete process.env.NETLIFY_SITE_ID;
-    const missing = await h({ httpMethod: 'POST', headers: { authorization: 'Bearer inv' }, body: '[]' });
-    assert.equal(missing.statusCode, 500); legacy.push(['POST 500 env', missing]);
-    for (const [label, r] of legacy) {
-      assert.deepEqual(r.headers, PRODUCTION_HEADERS, label + ': legacy headers must equal production exactly');
-      assert.ok(!('Access-Control-Expose-Headers' in r.headers), label + ': no expose list on legacy paths');
+    const calls = [];
+    const h = createHandler({ now: () => T0,
+      fetchFeed: async () => { calls.push('feed'); return ok(UNITS); },
+      readBlob: async (k) => { calls.push('read ' + k); return null; },
+      writeBlob: async (k) => { calls.push('write ' + k); } });
+    const refused = { ...CORS, Allow: 'GET, OPTIONS', 'Cache-Control': 'no-store' };
+    for (const [label, headers] of [['no header', {}], ['wrong token', { authorization: 'Bearer nope' }],
+      ['former-token-shaped', { authorization: 'Bearer dummy-former-token' }], ['capitalized', { Authorization: 'Bearer dummy-former-token' }]]) {
+      const r = await h({ httpMethod: 'POST', headers, body: JSON.stringify(UNITS) });
+      assert.equal(r.statusCode, 405, 'POST ' + label);
+      assert.deepEqual(JSON.parse(r.body), { error: 'Method not allowed' }, 'POST ' + label);
+      assert.deepEqual(r.headers, refused, 'POST ' + label + ': headers');
     }
-    assert.deepEqual(writes.map(w => [w.key, w.timeoutMs]), [[LEGACY_BLOB_KEY, 0], [LEGACY_BLOB_KEY, 0]], 'POST writes only the legacy key, with no timeout');
+    for (const m of ['PUT', 'PATCH', 'DELETE']) {
+      const r = await h({ httpMethod: m, headers: {}, body: '[]' });
+      assert.equal(r.statusCode, 405, m); assert.deepEqual(r.headers, refused, m + ': headers');
+    }
+    const opt = await h({ httpMethod: 'OPTIONS', headers: {} });
+    assert.equal(opt.statusCode, 204); assert.equal(opt.body, '');
+    assert.deepEqual(opt.headers, { ...CORS, 'Cache-Control': 'no-store' });
+    assert.deepEqual(calls, [], 'refused methods never touch the feed or any blob');
   } finally { for (const k of Object.keys(process.env)) if (!(k in saved)) delete process.env[k]; Object.assign(process.env, saved); }
+});
+
+test('P12: the function source no longer references INVENTORY_TOKEN, a POST branch or the old push storage key', () => {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'inventory.js'), 'utf8');
+  assert.ok(!src.includes('INVENTORY_TOKEN'), 'INVENTORY_TOKEN still referenced');
+  assert.ok(!/httpMethod === "POST"/.test(src), 'a POST branch still exists');
+  assert.ok(!src.includes('"' + OLD_PUSH_KEY + '"'), 'the old push storage key is still referenced');
 });

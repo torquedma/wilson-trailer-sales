@@ -8,34 +8,30 @@
 //             fetched_at (the last successful fresh retrieval). Reading it never refreshes fetched_at.
 //          3. Neither        -> 503 { error: "inventory_unavailable" }, never [] (an outage must not
 //             look like zero inventory).
-// POST = legacy store written by the ADMIN server push. Unchanged; GET no longer reads that blob.
-//        Retired with INVENTORY_TOKEN only after all three dealer cutovers pass (Chief ruling).
+// POST = retired 2026-10-09 (Chief; publisher retirement design 1e0KG2VgmdGjl3ryoSzNfbHGkKHxaaWjCHWWuUZFFRsc).
+//        POST and every other method except GET/OPTIONS -> 405, without reading the request. The old
+//        push-storage blob is left in place, inert; nothing reads or writes it.
 const https = require("https");
 
 const FEED_URL = "https://admin-torquehub.netlify.app/.netlify/functions/dealer-feed?dealer=WTS";
-const LEGACY_BLOB_KEY = "wilsontrailersales-inventory";      // POST (server push) only
 const LKG_BLOB_KEY = "wilsontrailersales-inventory-lkg";     // { fetched_at, units } — GET only
 const LKG_MAX_AGE_MS = 24 * 60 * 60 * 1000;                  // Chief 2026-10-08: 24 h maximum
 const FUTURE_SKEW_MS = 5 * 60 * 1000;                        // a fetched_at further ahead than this is corrupt
 const FEED_TIMEOUT_MS = 6000;
 const BLOB_TIMEOUT_MS = 3000;
 
-// Legacy header set: exactly the production (194b014) headers. POST / OPTIONS / 405 return this and nothing else.
-const LEGACY_HEADERS = {
+// CORS / content headers on every response. POST is retired, so only GET and OPTIONS are advertised.
+const CORS_HEADERS = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type",
+  "Access-Control-Allow-Methods": "GET, OPTIONS",
   "Content-Type": "application/json",
-  "Cache-Control": "public, max-age=300, s-maxage=600",
 };
-// GET only: the legacy CORS/content headers plus the expose list for the X-Inventory-* observability headers.
+// GET only: the CORS headers plus the expose list for the X-Inventory-* observability headers.
 // Each GET response sets its own Cache-Control below.
 const GET_HEADERS = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "Content-Type, Authorization",
-  "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+  ...CORS_HEADERS,
   "Access-Control-Expose-Headers": "X-Inventory-Source, X-Inventory-Fetched-At, X-Inventory-Age-Seconds",
-  "Content-Type": "application/json",
 };
 const FRESH_CACHE = "public, max-age=300, s-maxage=600";     // unchanged from the blob-era GET
 const LKG_CACHE = "public, max-age=60, s-maxage=60";         // short, so recovery shows quickly
@@ -73,7 +69,7 @@ const defaultDeps = {
     const r = await request(blobUrl(key), { headers: { Authorization: `Bearer ${blobToken()}` }, timeoutMs: BLOB_TIMEOUT_MS });
     return r.status === 200 ? r.body : null;
   },
-  // timeoutMs 0 = no timeout (the legacy POST never had one).
+  // Used only for the last-known-good write.
   writeBlob: async (key, body, timeoutMs = BLOB_TIMEOUT_MS) => {
     if (!blobsConfigured()) throw new Error("blobs not configured");
     const r = await request(blobUrl(key), {
@@ -155,35 +151,13 @@ function createHandler(deps) {
     };
   }
 
-  // Legacy POST store — unchanged behavior (writes LEGACY_BLOB_KEY, which GET no longer reads).
-  async function post(event) {
-    const siteId = process.env.NETLIFY_SITE_ID;
-    const token0 = blobToken();
-    if (!siteId || !token0) {
-      return { statusCode: 500, headers: LEGACY_HEADERS, body: JSON.stringify({ error: "Missing NETLIFY_SITE_ID or NETLIFY_BLOBS_TOKEN env vars" }) };
-    }
-    try {
-      const auth = event.headers["authorization"] || event.headers["Authorization"] || "";
-      const token = auth.replace("Bearer ", "");
-      if (!token || token !== process.env.INVENTORY_TOKEN) {
-        return { statusCode: 401, headers: LEGACY_HEADERS, body: JSON.stringify({ error: "Unauthorized" }) };
-      }
-      const payload = event.body;
-      await writeBlob(LEGACY_BLOB_KEY, payload, 0);
-      const data = JSON.parse(payload);
-      return { statusCode: 200, headers: LEGACY_HEADERS, body: JSON.stringify({ success: true, count: Array.isArray(data) ? data.length : "unknown" }) };
-    } catch (err) {
-      return { statusCode: 500, headers: LEGACY_HEADERS, body: JSON.stringify({ error: err.message }) };
-    }
-  }
-
+  // POST (the retired push receiver) and every other method are refused without reading the request.
   return async (event) => {
-    if (event.httpMethod === "OPTIONS") return { statusCode: 204, headers: LEGACY_HEADERS, body: "" };
+    if (event.httpMethod === "OPTIONS") return { statusCode: 204, headers: { ...CORS_HEADERS, "Cache-Control": ERROR_CACHE }, body: "" };
     if (event.httpMethod === "GET") return get();
-    if (event.httpMethod === "POST") return post(event);
-    return { statusCode: 405, headers: LEGACY_HEADERS, body: JSON.stringify({ error: "Method not allowed" }) };
+    return { statusCode: 405, headers: { ...CORS_HEADERS, Allow: "GET, OPTIONS", "Cache-Control": ERROR_CACHE }, body: JSON.stringify({ error: "Method not allowed" }) };
   };
 }
 
 exports.handler = createHandler(defaultDeps);
-exports._test = { createHandler, LKG_BLOB_KEY, LEGACY_BLOB_KEY, LKG_MAX_AGE_MS, FEED_URL };
+exports._test = { createHandler, LKG_BLOB_KEY, LKG_MAX_AGE_MS, FEED_URL };
